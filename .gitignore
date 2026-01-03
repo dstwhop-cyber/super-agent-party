@@ -1,0 +1,14 @@
+﻿node_modules/
+__pycache__/
+*.pyc
+.env
+data/
+*.log
+.DS_Store
+node_modules/
+__pycache__/
+*.pyc
+.env
+data/
+*.log
+.DS_Store
