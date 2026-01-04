@@ -298,4 +298,5 @@ If you have any questions or issues with the project, you are welcome to join ou
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=heshengtao/super-agent-party&type=Date)](https://www.star-history.com/#heshengtao/super-agent-party&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=heshengtao/super-agent-party&type=Date)](https://www.star-history.com/#heshengtao/super-agent-party&Date)#   s u p e r - a g e n t - p a r t y  
+ 
