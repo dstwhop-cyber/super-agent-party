@@ -26,9 +26,9 @@
 
 - ✅ 全渠道一键部署：支持将智能体配置快速部署至多类终端，已兼容经典聊天界面、桌宠机器人、QQ、飞书、discord、telegram聊天机器人、B站、YouTube、twitch直播机器人等场景，开箱即用。
 
-- ✅ 生态工具互联：可自由接入第三方智能体与工作流作为工具链（已适配Home Assistant/Claude code/Qwen code/Dify/ComfyUI/MCP/A2A等系统），通过agent-party架构实现跨平台能力聚合。
+- ✅ 生态工具互联：可自由接入第三方智能体与工作流作为工具链（已适配Home Assistant/Claude code/Qwen code/Dify/ComfyUI/MCP/A2A等系统），通过DSTurn-AI架构实现跨平台能力聚合。
 
-- ✅ 扩展生态丰富：支持自定义扩展开发，通过官网的[扩展市场](https://super-agent-party.github.io/plugins.html)实现社区共享，满足个性化需求。
+- ✅ 扩展生态丰富：支持自定义扩展开发，通过官网的[扩展市场](https://dstturn-ai.github.io/plugins.html)实现社区共享，满足个性化需求。
 
 - ✅ 标准化接口开放：提供OpenAI API兼容接口及MCP协议支持，便于开发者直接对接外部系统，实现智能体能力的快速转接与二次开发。VRM桌宠开放了VMC协议，实现跨应用动作同步。VRM桌宠界面支持了webXR协议，你可以在支持XR的设备中沉浸式体验。
 

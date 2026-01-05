@@ -26,9 +26,9 @@
 
 - ✅ Omnichannel One-Click Deployment: Supports rapid deployment of agent configurations to multiple terminals, already compatible with scenarios such as classic chat interfaces, desktop companion, QQ, Feishu, Discord, Telegram chatbots, Bilibili, YouTube, Twitch live-streaming bots, and more—ready to use out of the box.  
 
-- ✅ Ecosystem Tool Interconnectivity: Freely integrates third-party agents and workflows as toolchains (already adapted for systems like Home Assistant, Claude Code, Qwen Code, Dify, ComfyUI, MCP, A2A, etc.), enabling cross-platform capability aggregation through the Agent-Party architecture.  
+- ✅ Ecosystem Tool Interconnectivity: Freely integrates third-party agents and workflows as toolchains (already adapted for systems like Home Assistant, Claude Code, Qwen Code, Dify, ComfyUI, MCP, A2A, etc.), enabling cross-platform capability aggregation through the DSTurn-AI architecture.  
 
-- ✅ Rich Extension Ecosystem: Supports custom extension development, with community sharing via the official [Extension Marketplace](https://super-agent-party.github.io/plugins.html) to meet personalized needs.  
+- ✅ Rich Extension Ecosystem: Supports custom extension development, with community sharing via the official [Extension Marketplace](https://dstturn-ai.github.io/plugins.html) to meet personalized needs.  
 
 - ✅ Standardized interface openness: Provides OpenAI API-compatible interfaces and MCP protocol support, facilitating developers' direct integration with external systems for rapid agent capability transfer and secondary development. The VRM desktop pet supports the VMC protocol, enabling cross-application action synchronization. The VRM desktop pet interface also supports the webXR protocol, allowing immersive experiences on XR-compatible devices.
 
@@ -72,19 +72,19 @@
 
 ### Windows portable package (Recommended! Installation-free source version, support one-click synchronization to the latest version of the warehouse, no need to wait for the desktop version to be packaged)
 
-  👉 [Click to download](https://github.com/heshengtao/super-agent-party/releases/download/v0.3.5/super-agent-party-win-v0.3.5.7z)
+  👉 [Click to download](https://github.com/heshengtao/dsturn-ai/releases/download/v0.3.5/dsturn-ai-win-v0.3.5.7z)
 
 ⭐ Note!  You can double-click `一键更新(update).bat` to update the software, or you can double-click `一键启动(start).bat` to start the software.The operating system must be **Windows 10/11, Windows Server 2025**, or a later version!
 
 ### Windows Desktop Installation
 
-  👉 [Click to download](https://github.com/heshengtao/super-agent-party/releases/download/v0.3.5/Super-Agent-Party-Setup-0.3.5.exe)
+  👉 [Click to download](https://github.com/heshengtao/dsturn-ai/releases/download/v0.3.5/DSTurn-AI-Setup-0.3.5.exe)
 
 ⭐ Note! Choose to install only for the current user during installation, otherwise, administrator privileges will be required to start.The operating system must be **Windows 10/11, Windows Server 2025**, or a later version!
 
 ### macOS portable package (Currently only M chips are supported, developer-oriented, no-install source version, one-click sync to latest repo, no need to wait for desktop build)
 
-  👉 [Click to download](https://github.com/heshengtao/super-agent-party/releases/download/v0.3.5/super-agent-party-mac-v0.3.5.7z)
+  👉 [Click to download](https://github.com/heshengtao/dsturn-ai/releases/download/v0.3.5/dsturn-ai-mac-v0.3.5.7z)
 
 ⭐ Note! You can update the software in Terminal with `one-click update(update).sh` or launch it with `one-click start(start).sh`. Remember to grant permissions before use!
 
@@ -97,12 +97,12 @@
 
 ### MacOS Desktop Installation (Currently only M chips are supported.)
 
-  👉 [Click to download](https://github.com/heshengtao/super-agent-party/releases/download/v0.3.5/Super-Agent-Party-0.3.5-Mac.dmg)
+  👉 [Click to download](https://github.com/heshengtao/dsturn-ai/releases/download/v0.3.5/DSTurn-AI-0.3.5-Mac.dmg)
 
 ⭐Attention! After downloading, drag the app file of the dmg file into the `/Applications` directory, then open end point, execute the following command and enter the root password to remove the attached Quarantine attribute from the network download:
 
   ```shell
-  sudo xattr -dr com.apple.quarantine /Applications/Super-Agent-Party.app
+  sudo xattr -dr com.apple.quarantine /Applications/DSTurn-AI.app
   ```
 
 ### Linux Desktop Installation
@@ -113,11 +113,11 @@ We provide two mainstream Linux installation package formats for your convenienc
 
 `.AppImage` is a Linux application format that does not require installation and can be used immediately. Suitable for most Linux distributions.
 
-  👉 [Click to download](https://github.com/heshengtao/super-agent-party/releases/download/v0.3.5/Super-Agent-Party-0.3.5-Linux.AppImage)
+  👉 [Click to download](https://github.com/heshengtao/dsturn-ai/releases/download/v0.3.5/DSTurn-AI-0.3.5-Linux.AppImage)
 
 #### 2. Install using `.deb` package (Suitable for Ubuntu/Debian systems)
 
-  👉 [Click to download](https://github.com/heshengtao/super-agent-party/releases/download/v0.3.5/Super-Agent-Party-0.3.5-Linux.deb)
+  👉 [Click to download](https://github.com/heshengtao/dsturn-ai/releases/download/v0.3.5/DSTurn-AI-0.3.5-Linux.deb)
 
 ### Docker Deployment (This version of the table pet can only be viewed through the browser.)
 
@@ -298,5 +298,6 @@ If you have any questions or issues with the project, you are welcome to join ou
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=heshengtao/super-agent-party&type=Date)](https://www.star-history.com/#heshengtao/super-agent-party&Date)#   s u p e r - a g e n t - p a r t y  
+[![Star History Chart](https://api.star-history.com/svg?repos=heshengtao/super-agent-party&type=Date)](https://www.star-history.com/#heshengtao/super-agent-party&Date)#   s u p e r - a g e n t - p a r t y 
+ 
  
