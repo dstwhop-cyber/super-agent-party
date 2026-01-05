@@ -3127,19 +3127,24 @@ async def generate_stream_response(client,reasoner_client, request: ChatRequest,
                 yield "data: [DONE]\n\n"
                 if m0:
                     messages=f"用户说：{user_prompt}\n\n---\n\n你说：{full_content}"
-                    executor = ThreadPoolExecutor()
                     async def add_async():
-                        loop = asyncio.get_event_loop()
-                        # 绑定 user_id 关键字参数
-                        metadata = {
-                            "timetamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        }
-                        func = partial(m0.add, user_id=memoryId,metadata=metadata,infer=False)
-                        # 传递 messages 作为位置参数
-                        await loop.run_in_executor(executor, func, messages)
-                        print("知识库更新完成")
+                        try:
+                            with ThreadPoolExecutor() as executor:
+                                loop = asyncio.get_event_loop()
+                                # 绑定 user_id 关键字参数
+                                metadata = {
+                                    "timetamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                }
+                                func = partial(m0.add, user_id=memoryId,metadata=metadata,infer=False)
+                                # 传递 messages 作为位置参数
+                                await loop.run_in_executor(executor, func, messages)
+                                print("知识库更新完成")
+                        except Exception as e:
+                            logger.error(f"知识库更新失败: {e}")
+                            print(f"知识库更新失败: {e}")
 
-                    asyncio.create_task(add_async())
+                    task = asyncio.create_task(add_async())
+                    task.add_done_callback(lambda t: t.exception() and logger.error(f"Task failed: {t.exception()}"))
                     print("知识库更新任务已提交")
                 return
             except Exception as e:
@@ -4037,19 +4042,24 @@ async def generate_complete_response(client,reasoner_client, request: ChatReques
                 response_dict["choices"][0]['message']['content'] = re.sub(fr'{open_tag}(.*?)\{close_tag}', '', content, flags=re.DOTALL).strip()
         if m0:
             messages=f"用户说：{user_prompt}\n\n---\n\n你说：{response_dict["choices"][0]['message']['content']}"
-            executor = ThreadPoolExecutor()
             async def add_async():
-                loop = asyncio.get_event_loop()
-                # 绑定 user_id 关键字参数
-                metadata = {
-                    "timetamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                }
-                func = partial(m0.add, user_id=memoryId,metadata=metadata,infer=False)
-                # 传递 messages 作为位置参数
-                await loop.run_in_executor(executor, func, messages)
-                print("知识库更新完成")
+                try:
+                    with ThreadPoolExecutor() as executor:
+                        loop = asyncio.get_event_loop()
+                        # 绑定 user_id 关键字参数
+                        metadata = {
+                            "timetamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        }
+                        func = partial(m0.add, user_id=memoryId,metadata=metadata,infer=False)
+                        # 传递 messages 作为位置参数
+                        await loop.run_in_executor(executor, func, messages)
+                        print("知识库更新完成")
+                except Exception as e:
+                    logger.error(f"知识库更新失败: {e}")
+                    print(f"知识库更新失败: {e}")
 
-            asyncio.create_task(add_async())
+            task = asyncio.create_task(add_async())
+            task.add_done_callback(lambda t: t.exception() and logger.error(f"Task failed: {t.exception()}"))
         return JSONResponse(content=response_dict)
     except Exception as e:
         return JSONResponse(
