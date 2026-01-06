@@ -1,7 +1,7 @@
 # Contributor License Agreement (CLA)
 
 
-Thank you for your interest in contributing to super agent party (the "Project"). By contributing to this Project, you agree to the following terms and conditions:
+Thank you for your interest in contributing to dsturn (the "Project"). By contributing to this Project, you agree to the following terms and conditions:
 
 
 1. **Grant of Copyright License**:

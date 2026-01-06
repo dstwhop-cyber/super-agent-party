@@ -15,7 +15,7 @@
   <a href="https://space.bilibili.com/26978344"><img src="https://img.shields.io/badge/B站-观看教程-red?style=for-the-badge&logo=bilibili"/></a>
   <a href="https://www.youtube.com/@LLM-party"><img src="https://img.shields.io/badge/YouTube-订阅频道-FF0000?style=for-the-badge&logo=youtube"/></a>
   <a href="https://gcnij7egmcww.feishu.cn/wiki/DPRKwdetCiYBhPkPpXWcugujnRc"><img src="https://img.shields.io/badge/中文使用指南-飞书文档-00CDCD?style=for-the-badge&logo=docsdotrs"/></a>
-  <a href="https://temporal-lantern-7e8.notion.site/super-agent-party-211b2b2cb6f180c899d1c27a98c4965d"><img src="https://img.shields.io/badge/English%20Usage%20Guide-Notion-000000?style=for-the-badge&logo=notion"/></a>
+  <a href="https://temporal-lantern-7e8.notion.site/dsturn-211b2b2cb6f180c899d1c27a98c4965d"><img src="https://img.shields.io/badge/English%20Usage%20Guide-Notion-000000?style=for-the-badge&logo=notion"/></a>
   <a href="https://pan.baidu.com/share/init?surl=VBSnq4Ga3fRX_NcyPwsV7Q&pwd=2333"><img src="https://img.shields.io/badge/网盘下载-百度网盘-2E58D4?style=for-the-badge&logo=baidu"/></a>
   <a href="#快速开始"><img src="https://img.shields.io/badge/快速开始-下载-0052CC?style=for-the-badge&logo=github"/></a>
 </div>
@@ -28,7 +28,7 @@
 
 - ✅ 生态工具互联：可自由接入第三方智能体与工作流作为工具链（已适配Home Assistant/Claude code/Qwen code/Dify/ComfyUI/MCP/A2A等系统），通过DSTurn-AI架构实现跨平台能力聚合。
 
-- ✅ 扩展生态丰富：支持自定义扩展开发，通过官网的[扩展市场](https://dstturn-ai.github.io/plugins.html)实现社区共享，满足个性化需求。
+- ✅ 扩展生态丰富：支持自定义扩展开发，通过官网的[扩展市场](https://dsturn.github.io/plugins.html)实现社区共享，满足个性化需求。
 
 - ✅ 标准化接口开放：提供OpenAI API兼容接口及MCP协议支持，便于开发者直接对接外部系统，实现智能体能力的快速转接与二次开发。VRM桌宠开放了VMC协议，实现跨应用动作同步。VRM桌宠界面支持了webXR协议，你可以在支持XR的设备中沉浸式体验。
 
@@ -72,19 +72,19 @@
 
 ### windows整合包（推荐！免安装源码版本，支持一键同步到仓库最新版本，无需等待桌面版打包）
 
-  👉 [点击下载](https://github.com/heshengtao/super-agent-party/releases/download/v0.3.5/super-agent-party-win-v0.3.5.7z)
+  👉 [点击下载](https://github.com/heshengtao/dsturn/releases/download/v0.3.5/dsturn-win-v0.3.5.7z)
 
 ⭐注意！你可以双击`一键更新(update).bat`更新软件，也可以双击`一键启动(start).bat`启动软件。操作系统需要是**Windows 10/11、Window Server 2025**或者后续版本！
 
 ### windows桌面版安装
 
-  👉 [点击下载](https://github.com/heshengtao/super-agent-party/releases/download/v0.3.5/Super-Agent-Party-Setup-0.3.5.exe)
+  👉 [点击下载](https://github.com/heshengtao/dsturn/releases/download/v0.3.5/dsturn-Setup-0.3.5.exe)
 
 ⭐注意！安装时选择仅为当前用户安装，否则启动时需要管理员权限。操作系统需要是**Windows 10/11、Window Server 2025**或者后续版本！
 
 ### MacOS整合包（目前只支持M芯片，适合开发者，同样是免安装源码版本，支持一键同步到仓库最新版本，无需等待桌面版打包）
 
-  👉 [点击下载](https://github.com/heshengtao/super-agent-party/releases/download/v0.3.5/super-agent-party-mac-v0.3.5.7z)
+  👉 [点击下载](https://github.com/heshengtao/dsturn/releases/download/v0.3.5/dsturn-mac-v0.3.5.7z)
 
 ⭐注意！你可以在终端使用`一键更新(update).sh`更新软件，也可以在终端使用`一键启动(start).sh`启动软件。在使用前，记得给文件加权限！
 
@@ -97,12 +97,12 @@
 
 ### MacOS桌面版安装（目前只支持M芯片）
 
-  👉 [点击下载](https://github.com/heshengtao/super-agent-party/releases/download/v0.3.5/Super-Agent-Party-0.3.5-Mac.dmg)
+  👉 [点击下载](https://github.com/heshengtao/dsturn/releases/download/v0.3.5/dsturn-0.3.5-Mac.dmg)
 
 ⭐注意！下载后将dmg文件的app文件拖入`/Applications`目录下，然后打开终端，执行以下命令并输入root密码，从而移除从网络下载附加的Quarantine属性：
 
   ```shell
-  sudo xattr -dr com.apple.quarantine  /Applications/Super-Agent-Party.app
+  sudo xattr -dr com.apple.quarantine  /Applications/dsturn.app
   ```
 
 ### Linux 桌面版安装
@@ -113,21 +113,21 @@
 
 `.AppImage` 是一种无需安装、即开即用的 Linux 应用格式。适用于大多数 Linux 发行版。
 
-  👉 [点击下载](https://github.com/heshengtao/super-agent-party/releases/download/v0.3.5/Super-Agent-Party-0.3.5-Linux.AppImage)
+  👉 [点击下载](https://github.com/heshengtao/dsturn/releases/download/v0.3.5/dsturn-0.3.5-Linux.AppImage)
 
 #### 2. 使用 `.deb` 包安装（适用于 Ubuntu / Debian 系统）
 
-  👉 [点击下载](https://github.com/heshengtao/super-agent-party/releases/download/v0.3.5/Super-Agent-Party-0.3.5-Linux.deb)
+  👉 [点击下载](https://github.com/heshengtao/dsturn/releases/download/v0.3.5/dsturn-0.3.5-Linux.deb)
 
 ### docker部署（该版本桌宠只能通过浏览器查看）
 
 - 两行命令安装本项目：
   ```shell
-  docker pull ailm32442/super-agent-party:latest
-  docker run -d -p 3456:3456 -v ./super-agent-data:/app/data ailm32442/super-agent-party:latest
+  docker pull ailm32442/dsturn:latest
+  docker run -d -p 3456:3456 -v ./dsturn-data:/app/data ailm32442/dsturn:latest
   ```
 
-- ⭐注意！`./super-agent-data`可以替换为任意本地文件夹，docker启动后，所有数据都将缓存到该本地文件夹，不会上传到任何地方。
+- ⭐注意！`./dsturn-data`可以替换为任意本地文件夹，docker启动后，所有数据都将缓存到该本地文件夹，不会上传到任何地方。
 
 - 开箱即用：访问http://localhost:3456/
 
@@ -136,8 +136,8 @@
 - 安装本项目：
 
   ```shell
-  git clone https://github.com/heshengtao/super-agent-party.git
-  cd super-agent-party
+  git clone https://github.com/heshengtao/dsturn.git
+  cd dsturn
   docker-compose up -d
   ```
 
@@ -149,16 +149,16 @@
 
 ### 与docker版本配套的轻量版客户端，将你的docker版本变成桌面端
 
-👉 [SAP-lite-Windows-exe](https://github.com/heshengtao/desktop-for-sap/releases/download/v0.1.0/super-agent-party-lite-Setup-0.1.0.exe)
+👉 [SAP-lite-Windows-exe](https://github.com/heshengtao/desktop-for-sap/releases/download/v0.1.0/dsturn-lite-Setup-0.1.0.exe)
 
-👉 [SAP-lite-MacOS-dmg](https://github.com/heshengtao/desktop-for-sap/releases/download/v0.1.0/super-agent-party-lite-0.1.0-Mac.dmg)
+👉 [SAP-lite-MacOS-dmg](https://github.com/heshengtao/desktop-for-sap/releases/download/v0.1.0/dsturn-lite-0.1.0-Mac.dmg)
 
 
 ### 源码部署
 
   ```shell
-  git clone https://github.com/heshengtao/super-agent-party.git
-  cd super-agent-party
+  git clone https://github.com/heshengtao/dsturn.git
+  cd dsturn
   uv sync
   npm install
   npm run dev
@@ -166,7 +166,7 @@
 
 ## 扩展
 
-新增了全新的扩展系统，你可以在这里 [扩展列表](https://super-agent-party.github.io/plugins.html) 查看有哪些插件可用，你也可以直接在party中直接在【开发者】->【扩展】中查看和安装插件。你可以在[super-agent-party.github.io](https://github.com/super-agent-party/super-agent-party.github.io) 将你自己开发的扩展添加到官方扩展列表中！
+新增了全新的扩展系统，你可以在这里 [扩展列表](https://dsturn.github.io/plugins.html) 查看有哪些插件可用，你也可以直接在party中直接在【开发者】->【扩展】中查看和安装插件。你可以在[dsturn.github.io](https://github.com/dsturn/dsturn.github.io) 将你自己开发的扩展添加到官方扩展列表中！
 
 ## 硬件要求
 
@@ -192,7 +192,7 @@
   response = client.chat.completions.create(
     model="super-model",
     messages=[
-        {"role": "user", "content": "什么是super agent party？"}
+        {"role": "user", "content": "什么是dsturn？"}
     ]
   )
   print(response.choices[0].message.content)
@@ -203,7 +203,7 @@
   ```json
   {
     "mcpServers": {
-      "super-agent-party": {
+      "dsturn": {
         "url": "http://127.0.0.1:3456/mcp",
       }
     }
@@ -214,7 +214,7 @@
 
 主要功能请移步以下文档查看：
   - 👉 [中文文档](https://gcnij7egmcww.feishu.cn/wiki/DPRKwdetCiYBhPkPpXWcugujnRc)
-  - 👉 [英文文档](https://temporal-lantern-7e8.notion.site/super-agent-party-211b2b2cb6f180c899d1c27a98c4965d)
+  - 👉 [英文文档](https://temporal-lantern-7e8.notion.site/dsturn-211b2b2cb6f180c899d1c27a98c4965d)
 
 | 功能 | 详情 |
 | --- | --- |
@@ -229,7 +229,7 @@
 | 大量原生工具 | 工具调用支持异步，支持联网、知识库、控制智能家居、控制浏览器、在沙盒中执行代码、控制comfyui绘图、Claude code操作文件系统等 |
 | 自定义工具接口 | 已支持MCP、A2A、HTTP请求、任意LLM接口作为主智能体的工具使用，让用户以完全自由的方式定制自己的智能体工具链 |
 | 对外接口开放 | 开发者友好，对外开放模拟openAI和MCP的API接口，以及桌宠API接口 |
-| 扩展系统 | 你可以在这里 [扩展列表](https://super-agent-party.github.io/plugins.html) 查看有哪些插件可用，你也可以直接在party中直接在【开发者】->【扩展】中查看和安装插件。你可以在[super-agent-party.github.io](https://github.com/super-agent-party/super-agent-party.github.io) 将你自己开发的扩展添加到官方扩展列表中！ |
+| 扩展系统 | 你可以在这里 [扩展列表](https://dsturn.github.io/plugins.html) 查看有哪些插件可用，你也可以直接在party中直接在【开发者】->【扩展】中查看和安装插件。你可以在[dsturn.github.io](https://github.com/dsturn/dsturn.github.io) 将你自己开发的扩展添加到官方扩展列表中！ |
 | 存储空间 | 所有的文件资料均存放在用户本地的数据文件夹中，如果使用NAS部署，还可以作为内网的个人图床、文件床使用 |
 
 ## 免责声明：
@@ -299,4 +299,4 @@ QQ机器人使用的是QQ官方机器人接口，请遵守[AIGC接入QQ机器人
 
 ## 星标历史
 
-[![Star History Chart](https://api.star-history.com/svg?repos=heshengtao/super-agent-party&type=Date)](https://www.star-history.com/#heshengtao/super-agent-party&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=heshengtao/dsturn&type=Date)](https://www.star-history.com/#heshengtao/dsturn&Date)

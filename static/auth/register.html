@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Register - DSTURN</title>
+  <style>body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:40px}form{max-width:420px;margin:0 auto}label{display:block;margin-top:12px}input{width:100%;padding:8px;margin-top:6px}button{margin-top:16px;padding:10px 16px}</style>
+</head>
+<body>
+  <h2>Sign Up</h2>
+  <form id="regForm" onsubmit="return doRegister(event)">
+    <label>Email
+      <input type="email" id="email" autocomplete="username" required />
+    </label>
+    <label>Password
+      <input type="password" id="password" autocomplete="new-password" required />
+    </label>
+    <button type="submit">Create account</button>
+  </form>
+  <p>Already have an account? <a href="/login">Log in</a></p>
+
+  <script>
+    async function doRegister(e){
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const res = await fetch('/api/register', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({email, password})
+      });
+      const j = await res.json();
+      if(j.ok){
+        window.location.href = '/';
+      } else {
+        alert(j.error || 'Register failed');
+      }
+    }
+  </script>
+</body>
+</html>

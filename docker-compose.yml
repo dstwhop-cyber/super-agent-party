@@ -7,7 +7,7 @@ services:
     container_name: sap-backend
     restart: unless-stopped
     volumes:
-      - ./super-agent-data:/app/data
+      - ./dsturn-data:/app/data
     # 去掉了 ports 映射，因为我们要通过 gateway 访问
 
   # 前端网关服务

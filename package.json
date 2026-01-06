@@ -1,5 +1,5 @@
 {
-  "name": "dsturn-ai",
+  "name": "dsturn",
   "version": "v0.3.5",
   "description": "超级智能体派对v0.3.5 | 轻松链接一切!",
   "main": "main.js",
@@ -28,13 +28,13 @@
   },
   "license": "AGPL-3.0",
   "build": {
-    "appId": "com.dsturn.ai",
-    "productName": "DSTurn-AI",
+    "appId": "com.dsturn",
+    "productName": "dsturn",
     "copyright": "Copyright © 2025 Heshengtao",
     "publish": {
       "provider": "github",
       "owner": "heshengtao",
-      "repo": "dsturn-ai",
+      "repo": "dsturn",
       "releaseType": "draft"
     },
     "compression": "maximum",

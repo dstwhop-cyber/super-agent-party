@@ -1,5 +1,5 @@
 {
-  "name": "Super Agent Party Dev",
+  "name": "dsturn Dev",
   "build": {
     "dockerfile": "../Dockerfile",
     "context": ".."
@@ -16,8 +16,8 @@
   },
   "forwardPorts": [3456],
   "portsAttributes": {
-    "3456": {
-      "label": "Super Agent Party App",
+      "3456": {
+      "label": "dsturn App",
       "onAutoForward": "openBrowser" 
     }
   },

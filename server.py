@@ -7819,6 +7819,210 @@ mcp = FastApiMCP(
 
 mcp.mount()
 
+# -----------------------------
+# Minimal user authentication (SQLite) for DSTURN-AI
+# - users.db stores users and sessions
+# - PBKDF2-HMAC-SHA256 password hashing with per-user salt
+# - Session tokens stored server-side, set as HttpOnly cookie `session`
+# - Basic /register and /login pages served from static/auth
+# -----------------------------
+import aiosqlite
+import hashlib
+import secrets
+import re
+import time as _time
+from fastapi.responses import HTMLResponse
+
+USERS_DB = os.path.join(USER_DATA_DIR, "users.db")
+
+def _hash_password(password: str) -> str:
+    """Return salt$hashhex using PBKDF2-HMAC-SHA256."""
+    salt = secrets.token_hex(16)
+    dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt.encode('utf-8'), 200_000)
+    return f"{salt}${dk.hex()}"
+
+def _verify_password(stored: str, password: str) -> bool:
+    try:
+        salt, h = stored.split('$', 1)
+    except Exception:
+        return False
+    dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt.encode('utf-8'), 200_000)
+    return dk.hex() == h
+
+def _valid_email(e: str) -> bool:
+    return bool(re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", e)) or e == 'root'
+
+async def init_users_db():
+    try:
+        async with aiosqlite.connect(USERS_DB) as db:
+            await db.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    email TEXT UNIQUE,
+                    password_hash TEXT,
+                    created_at TEXT,
+                    is_admin INTEGER DEFAULT 0
+                )
+            ''')
+            await db.execute('''
+                CREATE TABLE IF NOT EXISTS sessions (
+                    token TEXT PRIMARY KEY,
+                    user_id INTEGER,
+                    expires_at INTEGER
+                )
+            ''')
+            await db.commit()
+
+        # Ensure root admin exists (keep existing root account working)
+        init_user = os.environ.get('INIT_USER', 'root')
+        init_pass = os.environ.get('INIT_PASS', 'pass')
+        async with aiosqlite.connect(USERS_DB) as db:
+            async with db.execute('SELECT id FROM users WHERE email = ?', (init_user,)) as cur:
+                row = await cur.fetchone()
+            if not row:
+                ph = _hash_password(init_pass)
+                await db.execute('INSERT INTO users (email, password_hash, created_at, is_admin) VALUES (?, ?, ?, 1)', (init_user, ph, datetime.utcnow().isoformat()))
+                await db.commit()
+    except Exception as e:
+        if logger:
+            logger.error(f"init_users_db error: {e}")
+
+async def _create_session(user_id: int, ttl: int = 7*24*3600) -> str:
+    token = secrets.token_urlsafe(32)
+    expires = int(_time.time()) + int(ttl)
+    async with aiosqlite.connect(USERS_DB) as db:
+        await db.execute('INSERT OR REPLACE INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)', (token, user_id, expires))
+        await db.commit()
+    return token
+
+async def _get_user_by_email(email: str):
+    async with aiosqlite.connect(USERS_DB) as db:
+        async with db.execute('SELECT id, email, password_hash, created_at, is_admin FROM users WHERE email = ?', (email,)) as cur:
+            row = await cur.fetchone()
+            if not row:
+                return None
+            return dict(id=row[0], email=row[1], password_hash=row[2], created_at=row[3], is_admin=bool(row[4]))
+
+async def _get_user_by_session(token: str):
+    if not token:
+        return None
+    now = int(_time.time())
+    async with aiosqlite.connect(USERS_DB) as db:
+        async with db.execute('SELECT user_id FROM sessions WHERE token = ? AND expires_at > ?', (token, now)) as cur:
+            row = await cur.fetchone()
+            if not row:
+                return None
+            uid = row[0]
+        async with db.execute('SELECT id, email, password_hash, created_at, is_admin FROM users WHERE id = ?', (uid,)) as cur:
+            row = await cur.fetchone()
+            if not row:
+                return None
+            return dict(id=row[0], email=row[1], password_hash=row[2], created_at=row[3], is_admin=bool(row[4]))
+
+async def _create_user(email: str, password: str, is_admin: bool = False):
+    if not email or not password:
+        raise ValueError('email and password required')
+    ph = _hash_password(password)
+    async with aiosqlite.connect(USERS_DB) as db:
+        await db.execute('INSERT INTO users (email, password_hash, created_at, is_admin) VALUES (?, ?, ?, ?)', (email, ph, datetime.utcnow().isoformat(), 1 if is_admin else 0))
+        await db.commit()
+        async with db.execute('SELECT id FROM users WHERE email = ?', (email,)) as cur:
+            row = await cur.fetchone()
+            return row[0]
+
+@app.on_event('startup')
+async def _startup_users():
+    await init_users_db()
+
+
+# Landing middleware: if root path and no session cookie, serve landing page
+@app.middleware("http")
+async def _landing_middleware(request: Request, call_next):
+    try:
+        if request.url.path == "/":
+            session = request.cookies.get('session')
+            if not session:
+                fp = os.path.join(base_path, 'static', 'auth', 'landing.html')
+                if os.path.exists(fp):
+                    return HTMLResponse(open(fp, 'r', encoding='utf-8').read())
+    except Exception:
+        pass
+    return await call_next(request)
+
+
+# -----------------------------
+# Auth routes
+# -----------------------------
+@app.get('/register')
+async def register_page():
+    fp = os.path.join(base_path, 'static', 'auth', 'register.html')
+    if os.path.exists(fp):
+        return HTMLResponse(open(fp, 'r', encoding='utf-8').read())
+    return HTMLResponse('<h3>Register</h3>', status_code=200)
+
+@app.get('/login')
+async def login_page():
+    fp = os.path.join(base_path, 'static', 'auth', 'login.html')
+    if os.path.exists(fp):
+        return HTMLResponse(open(fp, 'r', encoding='utf-8').read())
+    return HTMLResponse('<h3>Login</h3>', status_code=200)
+
+@app.post('/api/register')
+async def api_register(payload: dict = Body(...)):
+    email = (payload.get('email') or '').strip()
+    password = payload.get('password') or ''
+    if not email or not password:
+        return JSONResponse({'ok': False, 'error': 'email/password required'}, status_code=400)
+    if not _valid_email(email):
+        return JSONResponse({'ok': False, 'error': 'invalid email'}, status_code=400)
+    # ensure not existing
+    existing = await _get_user_by_email(email)
+    if existing:
+        return JSONResponse({'ok': False, 'error': 'user exists'}, status_code=400)
+    try:
+        uid = await _create_user(email, password, is_admin=False)
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+    # create user folders
+    user_base = os.path.join(USER_DATA_DIR, 'users', str(uid))
+    for sub in ('chats','history','memory','characters','settings'):
+        os.makedirs(os.path.join(user_base, sub), exist_ok=True)
+    token = await _create_session(uid)
+    res = JSONResponse({'ok': True, 'user': {'id': uid, 'email': email}})
+    res.set_cookie('session', token, httponly=True, samesite='lax', max_age=7*24*3600)
+    return res
+
+@app.post('/api/login')
+async def api_login(payload: dict = Body(...)):
+    email = (payload.get('email') or '').strip()
+    password = payload.get('password') or ''
+    if not email or not password:
+        return JSONResponse({'ok': False, 'error': 'email/password required'}, status_code=400)
+    user = await _get_user_by_email(email)
+    if not user:
+        return JSONResponse({'ok': False, 'error': 'invalid credentials'}, status_code=401)
+    if not _verify_password(user['password_hash'], password):
+        return JSONResponse({'ok': False, 'error': 'invalid credentials'}, status_code=401)
+    token = await _create_session(user['id'])
+    res = JSONResponse({'ok': True, 'user': {'id': user['id'], 'email': user['email'], 'is_admin': user['is_admin']}})
+    res.set_cookie('session', token, httponly=True, samesite='lax', max_age=7*24*3600)
+    return res
+
+@app.get('/logout')
+async def logout(request: Request):
+    token = request.cookies.get('session')
+    if token:
+        try:
+            async with aiosqlite.connect(USERS_DB) as db:
+                await db.execute('DELETE FROM sessions WHERE token = ?', (token,))
+                await db.commit()
+        except Exception:
+            pass
+    res = JSONResponse({'ok': True})
+    res.delete_cookie('session')
+    return res
+
+
 app.mount("/vrm", StaticFiles(directory=DEFAULT_VRM_DIR), name="vrm")
 app.mount("/tool_temp", StaticFiles(directory=TOOL_TEMP_DIR), name="tool_temp")
 app.mount("/uploaded_files", StaticFiles(directory=UPLOAD_FILES_DIR), name="uploaded_files")

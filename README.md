@@ -15,7 +15,7 @@
   <a href="https://space.bilibili.com/26978344"><img src="https://img.shields.io/badge/B站-观看教程-red?style=for-the-badge&logo=bilibili"/></a>
   <a href="https://www.youtube.com/@LLM-party"><img src="https://img.shields.io/badge/YouTube-Subscribe-FF0000?style=for-the-badge&logo=youtube"/></a>
   <a href="https://gcnij7egmcww.feishu.cn/wiki/DPRKwdetCiYBhPkPpXWcugujnRc"><img src="https://img.shields.io/badge/中文使用指南-飞书文档-00CDCD?style=for-the-badge&logo=docsdotrs"/></a>
-  <a href="https://temporal-lantern-7e8.notion.site/super-agent-party-211b2b2cb6f180c899d1c27a98c4965d"><img src="https://img.shields.io/badge/English%20Guide-Notion-000000?style=for-the-badge&logo=notion"/></a>
+  <a href="https://temporal-lantern-7e8.notion.site/dsturn-211b2b2cb6f180c899d1c27a98c4965d"><img src="https://img.shields.io/badge/English%20Guide-Notion-000000?style=for-the-badge&logo=notion"/></a>
   <a href="https://pan.baidu.com/share/init?surl=VBSnq4Ga3fRX_NcyPwsV7Q&pwd=2333"><img src="https://img.shields.io/badge/网盘下载-百度网盘-2E58D4?style=for-the-badge&logo=baidu"/></a>
   <a href="#quick-start"><img src="https://img.shields.io/badge/Quick%20Start-Download-0052CC?style=for-the-badge&logo=github"/></a>
 </div>
@@ -28,7 +28,7 @@
 
 - ✅ Ecosystem Tool Interconnectivity: Freely integrates third-party agents and workflows as toolchains (already adapted for systems like Home Assistant, Claude Code, Qwen Code, Dify, ComfyUI, MCP, A2A, etc.), enabling cross-platform capability aggregation through the DSTurn-AI architecture.  
 
-- ✅ Rich Extension Ecosystem: Supports custom extension development, with community sharing via the official [Extension Marketplace](https://dstturn-ai.github.io/plugins.html) to meet personalized needs.  
+- ✅ Rich Extension Ecosystem: Supports custom extension development, with community sharing via the official [Extension Marketplace](https://dsturn.github.io/plugins.html) to meet personalized needs.  
 
 - ✅ Standardized interface openness: Provides OpenAI API-compatible interfaces and MCP protocol support, facilitating developers' direct integration with external systems for rapid agent capability transfer and secondary development. The VRM desktop pet supports the VMC protocol, enabling cross-application action synchronization. The VRM desktop pet interface also supports the webXR protocol, allowing immersive experiences on XR-compatible devices.
 
@@ -123,11 +123,11 @@ We provide two mainstream Linux installation package formats for your convenienc
 
 - Two commands to install this project:
   ```shell
-  docker pull ailm32442/super-agent-party:latest
-  docker run -d -p 3456:3456 -v ./super-agent-data:/app/data ailm32442/super-agent-party:latest
+  docker pull ailm32442/dsturn:latest
+  docker run -d -p 3456:3456 -v ./dsturn-data:/app/data ailm32442/dsturn:latest
   ```
 
-- ⭐Note! `./super-agent-data` can be replaced with any local folder, after Docker starts, all data will be cached in this local folder and will not be uploaded anywhere.
+- ⭐Note! `./dsturn-data` can be replaced with any local folder, after Docker starts, all data will be cached in this local folder and will not be uploaded anywhere.
 
 - Ready to use: access http://localhost:3456/
 
@@ -136,8 +136,8 @@ We provide two mainstream Linux installation package formats for your convenienc
 - Install the project:
 
   ```shell
-  git clone https://github.com/heshengtao/super-agent-party.git
-  cd super-agent-party
+  git clone https://github.com/heshengtao/dsturn.git
+  cd dsturn
   docker-compose up -d
   ```
 
@@ -149,15 +149,15 @@ We provide two mainstream Linux installation package formats for your convenienc
 
 ### Lite client that matches your Docker version, turning Docker into a desktop app
 
-👉 [SAP-lite-Windows-exe](https://github.com/heshengtao/desktop-for-sap/releases/download/v0.1.0/super-agent-party-lite-Setup-0.1.0.exe)
+👉 [SAP-lite-Windows-exe](https://github.com/heshengtao/desktop-for-sap/releases/download/v0.1.0/dsturn-lite-Setup-0.1.0.exe)
 
-👉 [SAP-lite-MacOS-dmg](https://github.com/heshengtao/desktop-for-sap/releases/download/v0.1.0/super-agent-party-lite-0.1.0-Mac.dmg)
+👉 [SAP-lite-MacOS-dmg](https://github.com/heshengtao/desktop-for-sap/releases/download/v0.1.0/dsturn-lite-0.1.0-Mac.dmg)
 
 ### Source Code Deployment
 
   ```shell
-  git clone https://github.com/heshengtao/super-agent-party.git
-  cd super-agent-party
+  git clone https://github.com/heshengtao/dsturn.git
+  cd dsturn
   uv sync
   npm install
   npm run dev
@@ -165,7 +165,7 @@ We provide two mainstream Linux installation package formats for your convenienc
 
 ## Extension
 
-Added a brand-new extension system. You can check available plugins at [plugins list](https://super-agent-party.github.io/plugins.html), or directly view and install them in the party under 【Developer】->【Extensions】. You can also add your own developed extensions to the official plugin list at [super-agent-party.github.io](https://github.com/super-agent-party/super-agent-party.github.io)! 
+Added a brand-new extension system. You can check available plugins at [plugins list](https://dsturn.github.io/plugins.html), or directly view and install them in the party under 【Developer】->【Extensions】. You can also add your own developed extensions to the official plugin list at [dsturn.github.io](https://github.com/dsturn/dsturn.github.io)! 
 
 ## Hardware requirements
 
@@ -191,7 +191,7 @@ Added a brand-new extension system. You can check available plugins at [plugins 
   response = client.chat.completions.create(
     model="super-model",
     messages=[
-        {"role": "user", "content": "What is Super Agent Party?"}
+      {"role": "user", "content": "What is dsturn?"}
     ]
   )
   print(response.choices[0].message.content)
@@ -202,7 +202,7 @@ Added a brand-new extension system. You can check available plugins at [plugins 
   ```json
   {
     "mcpServers": {
-      "super-agent-party": {
+      "dsturn": {
         "url": "http://127.0.0.1:3456/mcp",
       }
     }
@@ -213,7 +213,7 @@ Added a brand-new extension system. You can check available plugins at [plugins 
 
 Please refer to the following document for the main functions:
   - 👉 [Chinese document](https://gcnij7egmcww.feishu.cn/wiki/DPRKwdetCiYBhPkPpXWcugujnRc)
-  - 👉 [English document](https://temporal-lantern-7e8.notion.site/super-agent-party-211b2b2cb6f180c899d1c27a98c4965d)
+  - 👉 [English document](https://temporal-lantern-7e8.notion.site/dsturn-211b2b2cb6f180c899d1c27a98c4965d)
 
 | Feature | Details |
 | --- | --- |
@@ -228,7 +228,7 @@ Please refer to the following document for the main functions:
 | Extensive Native Tools | Tool calling supports asynchronous execution, including web search, knowledge base access, smart home control, browser control, code execution in sandbox environments, controlling ComfyUI for image generation, and Claude code operates the file system. |
 | Custom Tool Interfaces | Supports MCP, A2A, HTTP requests, and any LLM interface as tools for the main agent, enabling users to freely customize their agent's toolchain. |
 | Open External APIs | Developer-friendly with open APIs simulating OpenAI and MCP, as well as desktop pet APIs. |
-| Extension System | You can check out the available plugins in the [Extension List](https://super-agent-party.github.io/plugins.html). You can also view and install plugins directly in Party by navigating to 【Developer】 -> 【Extensions】. You can add your own developed extensions to the official extension list at [super-agent-party.github.io](https://github.com/super-agent-party/super-agent-party.github.io)! |
+| Extension System | You can check out the available plugins in the [Extension List](https://dsturn.github.io/plugins.html). You can also view and install plugins directly in Party by navigating to 【Developer】 -> 【Extensions】. You can add your own developed extensions to the official extension list at [dsturn.github.io](https://github.com/dsturn/dsturn.github.io)! |
 | Storage Space | All files and data are stored in the user's local data folder. When deployed with NAS, it can also serve as a personal image or file host within the local network. |
 
 ## Disclaimer:
@@ -298,6 +298,4 @@ If you have any questions or issues with the project, you are welcome to join ou
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=heshengtao/super-agent-party&type=Date)](https://www.star-history.com/#heshengtao/super-agent-party&Date)#   s u p e r - a g e n t - p a r t y 
- 
- 
+[![Star History Chart](https://api.star-history.com/svg?repos=heshengtao/dsturn&type=Date)](https://www.star-history.com/#heshengtao/dsturn&Date)
