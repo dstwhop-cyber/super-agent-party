@@ -512,6 +512,32 @@ async def cors_options_workaround(request: Request, call_next):
     return await call_next(request)
 
 
+# Global exception handlers to always return JSON responses on errors
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    content = {"error": exc.detail if hasattr(exc, "detail") else str(exc)}
+    return JSONResponse(status_code=getattr(exc, "status_code", 500), content=content)
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(status_code=400, content={"error": "invalid_request", "details": exc.errors()})
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    # Log full traceback when logger is available
+    try:
+        logger and logger.exception("Unhandled exception: %s", exc)
+    except Exception:
+        pass
+    return JSONResponse(status_code=500, content={"error": str(exc)})
+
+
 # Protect dashboard pages and certain API routes
 @app.middleware("http")
 async def auth_guard(request: Request, call_next):
@@ -700,6 +726,14 @@ async def login_page():
     if os.path.exists(path):
         return FileResponse(path, media_type='text/html')
     return HTMLResponse('<h1>Login page not found</h1>', status_code=404)
+
+
+@app.post('/login')
+async def login_post(request: Request):
+    try:
+        return await api_login(request)
+    except Exception as e:
+        return JSONResponse(status_code=getattr(e, 'status_code', 500), content={"error": str(e)})
 
 
 @app.get('/landing')
