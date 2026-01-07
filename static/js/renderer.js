@@ -677,6 +677,12 @@ const app = Vue.createApp({
   data() {
     return vue_data
   },
+  computed: {
+    isAdminUser() {
+      // show full admin sidebar only for the special admin user 'oasegawa'
+      return this.currentUser && (this.currentUser.email === 'oasegawa');
+    }
+  },
   // 在组件销毁时清除定时器
   beforeDestroy() {
     if (this.behaviorTimeTimer)   clearInterval(this.behaviorTimeTimer)

@@ -243,11 +243,11 @@ if ('serviceWorker' in navigator) {
     <el-container class="main-container">
       <!-- 侧边栏 -->
       <el-aside 
+        v-if="isAdminUser && (!isMobile || sidebarVisible)"
         :width="sidebarStyle.width"
         class="sidebar"
         :class="{ 'mobile-sidebar': isMobile }"
-        @dblclick="isCollapse = !isCollapse"
-        v-show="!isMobile || sidebarVisible">
+        @dblclick="isCollapse = !isCollapse">
         <el-menu
           :collapse="isCollapse"
           :default-active="activeMenu"
