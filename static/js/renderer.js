@@ -679,8 +679,10 @@ const app = Vue.createApp({
   },
   computed: {
     isAdminUser() {
-      // show full admin sidebar only for the special admin user 'oasegawa'
-      return this.currentUser && (this.currentUser.email === 'oasegawa');
+      // Prefer backend-provided is_admin flag. Fallback to email check for compatibility.
+      if (!this.currentUser) return false;
+      if (typeof this.currentUser.is_admin !== 'undefined') return !!this.currentUser.is_admin;
+      return this.currentUser.email === 'oasegawa';
     }
   },
   // 在组件销毁时清除定时器
