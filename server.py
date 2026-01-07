@@ -114,7 +114,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from openai import AsyncOpenAI
 from pydantic import BaseModel
 from fastapi import status
-from fastapi.responses import JSONResponse, StreamingResponse,Response
+from fastapi.responses import JSONResponse, StreamingResponse,Response, RedirectResponse
 from fastapi.responses import HTMLResponse, FileResponse
 import uuid
 import time
@@ -700,6 +700,19 @@ async def api_logout(request: Request):
         except Exception:
             pass
     res = JSONResponse({'ok': True})
+    res.delete_cookie('session_token')
+    return res
+
+
+@app.get('/logout')
+async def logout_redirect(request: Request):
+    token = request.cookies.get('session_token')
+    if token:
+        try:
+            delete_session(USER_DATA_DIR, token)
+        except Exception:
+            pass
+    res = RedirectResponse(url='/login')
     res.delete_cookie('session_token')
     return res
 

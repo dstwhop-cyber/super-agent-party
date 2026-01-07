@@ -222,6 +222,20 @@ if ('serviceWorker' in navigator) {
             <i class="fa-solid fa-xmark"></i>
           </el-icon>
         </el-button>
+        <!-- User menu (compact avatar dropdown) -->
+        <el-dropdown v-if="currentUser && !isAssistantMode" placement="bottom-end" trigger="click" @command="handleUserCommand">
+          <span class="el-dropdown-link top-bar-btn" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <el-avatar size="28"><i class="fa-solid fa-user"></i></el-avatar>
+            <span v-show="!isCollapse" style="margin-left:6px">{{ currentUser.email || currentUser.id }}</span>
+            <i class="fa-solid fa-caret-down" style="margin-left:6px"></i>
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="switch">{{ t('switchAccount') || 'Switch Account' }}</el-dropdown-item>
+              <el-dropdown-item command="logout">{{ t('logout') || 'Logout' }}</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </div>
     </el-header>
 
@@ -292,6 +306,13 @@ if ('serviceWorker' in navigator) {
             class="sidebar-logo">
             <el-icon class="logo-icon"><img src="./source/icon.png" /></el-icon>
             <template #title>{{ t('aboutUs') }}</template>
+          </el-menu-item>
+          <!-- Logout (visible in sidebar/mobile) -->
+          <el-menu-item index="logout" @click="logout">
+            <el-icon>
+              <i class="fa-solid fa-right-from-bracket"></i>
+            </el-icon>
+            <template #title>{{ t('logout') || 'Logout' }}</template>
           </el-menu-item>
         </el-menu>
       </el-aside>

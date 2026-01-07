@@ -62,6 +62,7 @@ if (isElectron) {
   const protocol = window.location.protocol;
   const backendURL = `${window.location.protocol}//${window.location.host}`;
 let vue_data = {
+  currentUser: null,
     isPremium: false,
     dailyMessagesSent: 0,
     dailyLimit: 15,
@@ -89,6 +90,7 @@ let vue_data = {
     isElectron: isElectron,
     isCollapse: true,
     isBtnCollapse: true,
+    currentUser: null, // populated from /api/me on startup
     activeMenu: 'home',
     activeLiveTab: 'live',
     isMaximized: false,

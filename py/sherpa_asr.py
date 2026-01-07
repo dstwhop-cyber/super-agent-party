@@ -1,5 +1,6 @@
 # sherpa_asord.py
 from pathlib import Path
+import logging
 import sherpa_onnx
 import soundfile as sf
 from io import BytesIO
@@ -35,21 +36,28 @@ def _get_recognizer(model_name: str = DEFAULT_MODEL_NAME):
         model = model_dir / "model.int8.onnx"
         tokens = model_dir / "tokens.txt"
         if not model.is_file() or not tokens.is_file():
-            raise ValueError(f"Sherpa 模型文件未找到，目录={model_dir}")
+            logging.warning("Sherpa ASR not available – model files missing: %s", model_dir)
+            return None
 
-        _recognizer = sherpa_onnx.OfflineRecognizer.from_sense_voice(
-            model=str(model),
-            tokens=str(tokens),
-            num_threads=4,
-            provider=DEVICE,
-            use_itn=True,
-            debug=False,
-        )
+        try:
+            _recognizer = sherpa_onnx.OfflineRecognizer.from_sense_voice(
+                model=str(model),
+                tokens=str(tokens),
+                num_threads=4,
+                provider=DEVICE,
+                use_itn=True,
+                debug=False,
+            )
+        except Exception as e:
+            logging.exception("Failed to initialize Sherpa ASR recognizer: %s", e)
+            return None
     return _recognizer
 
 # ---------- 识别接口 ----------
 async def sherpa_recognize(audio_bytes: bytes, model_name: str = None):
     recognizer = _get_recognizer(model_name or DEFAULT_MODEL_NAME)
+    if recognizer is None:
+        raise RuntimeError("Sherpa ASR not available – model files missing")
     try:
         with BytesIO(audio_bytes) as audio_file:
             audio, sample_rate = sf.read(audio_file, dtype="float32", always_2d=True)

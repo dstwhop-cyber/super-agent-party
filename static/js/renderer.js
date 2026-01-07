@@ -558,6 +558,25 @@ const A2UIRendererComponent = {
         if (props.variant === 'danger') return 'danger';
         return props.type || 'default';
     },
+    async logout() {
+      try {
+        await fetch('/api/logout', { method: 'GET', credentials: 'same-origin' });
+      } catch (e) {
+        // ignore
+      }
+      window.location.href = '/login';
+    },
+    async switchAccount() {
+      // same behaviour as logout: clear session and go to login
+      await this.logout();
+    },
+    handleUserCommand(command) {
+      if (command === 'logout') {
+        this.logout();
+      } else if (command === 'switch') {
+        this.switchAccount();
+      }
+    },
 handleAction(item, extraValue) {
       // ... (保留之前的 Clear/Reset 拦截逻辑) ...
       if (item.props.action === 'clear' || item.props.action === 'reset') {
@@ -682,6 +701,14 @@ const app = Vue.createApp({
     await this.probeUv(); 
     await this.probeGit();
     this.checkMobile();
+    // Load current user so UI can show logout / switch-account when logged in
+    try {
+      const resp = await fetch('/api/me', { credentials: 'same-origin' });
+      const j = await resp.json();
+      this.currentUser = j.user || null;
+    } catch (e) {
+      this.currentUser = null;
+    }
     this.loadSherpaStatus();
     this.minilmModelStatus();
     window.addEventListener('resize', this.handleResize);
