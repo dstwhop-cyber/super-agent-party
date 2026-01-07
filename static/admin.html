@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Admin — DSTURN-AI</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>body{font-family:Arial,Helvetica,sans-serif;padding:20px} table{width:100%;border-collapse:collapse} th,td{padding:8px;border:1px solid #ddd;text-align:left} button{padding:6px 10px;margin-right:6px}</style>
+</head>
+<body>
+  <h1>Admin — Users</h1>
+  <table id="users"><thead><tr><th>ID</th><th>Email</th><th>Admin</th><th>Actions</th></tr></thead><tbody></tbody></table>
+  <script>
+    async function load(){
+      const r = await fetch('/api/admin/users');
+      if(!r.ok){ alert('forbidden'); return }
+      const j = await r.json();
+      const tbody = document.querySelector('#users tbody');
+      tbody.innerHTML='';
+      j.users.forEach(u=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${u.id}</td><td>${u.email}</td><td>${u.is_admin}</td><td></td>`;
+        const actions = tr.querySelector('td:last-child');
+        const toggle = document.createElement('button'); toggle.textContent='Toggle Admin';
+        toggle.onclick = async ()=>{
+          await fetch(`/api/admin/users/${u.id}/set_admin`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({is_admin:!u.is_admin})}); load();
+        };
+        const del = document.createElement('button'); del.textContent='Delete'; del.onclick=async()=>{ if(confirm('Delete user?')){ await fetch(`/api/admin/users/${u.id}`,{method:'DELETE'}); load(); }};
+        actions.appendChild(toggle); actions.appendChild(del);
+        tbody.appendChild(tr);
+      })
+    }
+    load();
+  </script>
+</body>
+</html>

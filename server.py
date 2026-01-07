@@ -115,6 +115,7 @@ from openai import AsyncOpenAI
 from pydantic import BaseModel
 from fastapi import status
 from fastapi.responses import JSONResponse, StreamingResponse,Response
+from fastapi.responses import HTMLResponse, FileResponse
 import uuid
 import time
 from typing import Any, AsyncIterator, List, Dict,Optional, Tuple
@@ -509,6 +510,346 @@ async def cors_options_workaround(request: Request, call_next):
             }
         )
     return await call_next(request)
+
+
+# Protect dashboard pages and certain API routes
+@app.middleware("http")
+async def auth_guard(request: Request, call_next):
+    path = request.url.path
+    # Public HTML pages
+    public_html = ['/login', '/register', '/landing', '/static', '/sw.js', '/manifest.json']
+    # Public API endpoints
+    public_api_prefixes = ['/api/login', '/api/register', '/api/request_password_reset', '/api/reset_password', '/api/verify_email', '/api/me', '/api/paddle']
+
+    # allow static asset folders
+    if path.startswith('/libs') or path.startswith('/css') or path.startswith('/js') or path.startswith('/fontawesome') or path.startswith('/source') or path.startswith('/static'):
+        return await call_next(request)
+
+    # Allow public html pages
+    if path in public_html or any(path.startswith(p) for p in public_api_prefixes):
+        return await call_next(request)
+
+    # Protect chat/dashboard HTML
+    protected_html = ['/', '/index.html', '/chat.html']
+    if path in protected_html:
+        user = _get_current_user_from_request(request)
+        if not user:
+            # redirect to landing for guests
+            return Response(status_code=302, headers={'Location': '/landing'})
+        return await call_next(request)
+
+    # Protect admin API and admin pages
+    if path.startswith('/api/admin') or path == '/admin':
+        user = _get_current_user_from_request(request)
+        if not user or not user.get('is_admin'):
+            return JSONResponse({'error': 'forbidden'}, status_code=403)
+        return await call_next(request)
+
+    # For other API routes under /api require authentication
+    if path.startswith('/api/'):
+        user = _get_current_user_from_request(request)
+        if not user:
+            return JSONResponse({'error': 'unauthenticated'}, status_code=401)
+        return await call_next(request)
+
+    return await call_next(request)
+
+
+# --- Simple authentication endpoints (SQLite + session cookie) ---
+try:
+    from py.auth import (
+        init_user_db,
+        ensure_root_admin,
+        create_user,
+        get_user_by_email,
+        verify_password,
+        create_session,
+        get_user_by_session,
+        delete_session,
+        list_users,
+        delete_user,
+        set_user_admin,
+        create_token,
+        get_token_record,
+        consume_token,
+        set_password_by_userid,
+        set_user_verified,
+    )
+except Exception:
+    init_user_db = None
+
+
+if init_user_db:
+    # initialize DB and ensure root admin exists
+    try:
+        init_user_db(USER_DATA_DIR)
+        ensure_root_admin(USER_DATA_DIR)
+    except Exception as e:
+        logger and logger.error(f"init_user_db error: {e}")
+
+
+def _get_current_user_from_request(request: Request):
+    token = request.cookies.get('session_token')
+    if not token:
+        return None
+    try:
+        return get_user_by_session(USER_DATA_DIR, token)
+    except Exception:
+        return None
+
+
+@app.post('/api/register')
+async def api_register(request: Request):
+    if not init_user_db:
+        raise HTTPException(status_code=500, detail="Auth not available")
+    data = await request.json()
+    email = (data.get('email') or '').strip().lower()
+    password = data.get('password') or ''
+    if not email or not password:
+        raise HTTPException(status_code=400, detail='email and password required')
+    if get_user_by_email(USER_DATA_DIR, email):
+        return JSONResponse({'error': 'user_exists'}, status_code=400)
+    user_id = create_user(USER_DATA_DIR, email, password, is_admin=False)
+    # create email verification token (optional)
+    try:
+        vtoken = create_token(USER_DATA_DIR, user_id, 'verify', ttl_seconds=86400)
+        # try to send email if SMTP configured
+        smtp_host = os.environ.get('SMTP_HOST')
+        if smtp_host:
+            try:
+                import smtplib
+                from email.message import EmailMessage
+                smtp_port = int(os.environ.get('SMTP_PORT', 587))
+                smtp_user = os.environ.get('SMTP_USER')
+                smtp_pass = os.environ.get('SMTP_PASS')
+                from_addr = os.environ.get('FROM_ADDRESS', smtp_user)
+                msg = EmailMessage()
+                msg['Subject'] = 'DSTURN-AI email verification'
+                msg['From'] = from_addr
+                msg['To'] = email
+                link = f"http://127.0.0.1:{PORT}/verify_email?token={vtoken}"
+                msg.set_content(f"Verify your email using this link: {link}\n")
+                s = smtplib.SMTP(smtp_host, smtp_port)
+                s.starttls()
+                if smtp_user and smtp_pass:
+                    s.login(smtp_user, smtp_pass)
+                s.send_message(msg)
+                s.quit()
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    token = create_session(USER_DATA_DIR, user_id)
+    res = JSONResponse({'ok': True, 'user': {'id': user_id, 'email': email}})
+    # set httpOnly cookie
+    res.set_cookie('session_token', token, httponly=True, samesite='lax')
+    return res
+
+
+@app.post('/api/login')
+async def api_login(request: Request):
+    if not init_user_db:
+        raise HTTPException(status_code=500, detail="Auth not available")
+    data = await request.json()
+    email = (data.get('email') or '').strip().lower()
+    password = data.get('password') or ''
+    if not email or not password:
+        raise HTTPException(status_code=400, detail='email and password required')
+    user = get_user_by_email(USER_DATA_DIR, email)
+    if not user or not verify_password(user, password):
+        return JSONResponse({'error': 'invalid_credentials'}, status_code=401)
+    token = create_session(USER_DATA_DIR, user['id'])
+    res = JSONResponse({'ok': True, 'user': {'id': user['id'], 'email': user['email'], 'is_admin': user['is_admin']}})
+    res.set_cookie('session_token', token, httponly=True, samesite='lax')
+    return res
+
+
+@app.get('/api/logout')
+async def api_logout(request: Request):
+    token = request.cookies.get('session_token')
+    if token:
+        try:
+            delete_session(USER_DATA_DIR, token)
+        except Exception:
+            pass
+    res = JSONResponse({'ok': True})
+    res.delete_cookie('session_token')
+    return res
+
+
+@app.get('/api/me')
+async def api_me(request: Request):
+    user = _get_current_user_from_request(request)
+    if not user:
+        return JSONResponse({'user': None})
+    return JSONResponse({'user': user})
+
+
+@app.get('/register')
+async def register_page():
+    path = os.path.join(base_path, 'static', 'register.html')
+    if os.path.exists(path):
+        return FileResponse(path, media_type='text/html')
+    return HTMLResponse('<h1>Register page not found</h1>', status_code=404)
+
+
+@app.get('/login')
+async def login_page():
+    path = os.path.join(base_path, 'static', 'login.html')
+    if os.path.exists(path):
+        return FileResponse(path, media_type='text/html')
+    return HTMLResponse('<h1>Login page not found</h1>', status_code=404)
+
+
+@app.get('/landing')
+async def landing_page():
+    path = os.path.join(base_path, 'static', 'landing.html')
+    if os.path.exists(path):
+        return FileResponse(path, media_type='text/html')
+    return HTMLResponse('<h1>Landing page not found</h1>', status_code=404)
+
+
+    @app.get('/admin')
+    async def admin_page(request: Request):
+        path = os.path.join(base_path, 'static', 'admin.html')
+        if os.path.exists(path):
+            return FileResponse(path, media_type='text/html')
+        return HTMLResponse('<h1>Admin page not found</h1>', status_code=404)
+
+
+    @app.get('/api/admin/users')
+    async def api_admin_list_users(request: Request):
+        current = _get_current_user_from_request(request)
+        if not current or not current.get('is_admin'):
+            return JSONResponse({'error': 'forbidden'}, status_code=403)
+        users = list_users(USER_DATA_DIR)
+        return JSONResponse({'users': users})
+
+
+    @app.post('/api/admin/users/{user_id}/set_admin')
+    async def api_admin_set_admin(user_id: int, request: Request):
+        current = _get_current_user_from_request(request)
+        if not current or not current.get('is_admin'):
+            return JSONResponse({'error': 'forbidden'}, status_code=403)
+        body = await request.json()
+        is_admin_flag = bool(body.get('is_admin'))
+        set_user_admin(USER_DATA_DIR, user_id, is_admin_flag)
+        return JSONResponse({'ok': True})
+
+
+    @app.delete('/api/admin/users/{user_id}')
+    async def api_admin_delete_user(user_id: int, request: Request):
+        current = _get_current_user_from_request(request)
+        if not current or not current.get('is_admin'):
+            return JSONResponse({'error': 'forbidden'}, status_code=403)
+        delete_user(USER_DATA_DIR, user_id)
+        return JSONResponse({'ok': True})
+
+
+    @app.post('/api/request_password_reset')
+    async def api_request_password_reset(request: Request):
+        data = await request.json()
+        email = (data.get('email') or '').strip().lower()
+        if not email:
+            raise HTTPException(status_code=400, detail='email required')
+        user = get_user_by_email(USER_DATA_DIR, email)
+        if not user:
+            # do not reveal existence
+            return JSONResponse({'ok': True})
+        token = create_token(USER_DATA_DIR, user['id'], 'reset', ttl_seconds=3600)
+        # Try to send email if SMTP configured
+        smtp_host = os.environ.get('SMTP_HOST')
+        if smtp_host:
+            try:
+                import smtplib
+                from email.message import EmailMessage
+                smtp_port = int(os.environ.get('SMTP_PORT', 587))
+                smtp_user = os.environ.get('SMTP_USER')
+                smtp_pass = os.environ.get('SMTP_PASS')
+                from_addr = os.environ.get('FROM_ADDRESS', smtp_user)
+                msg = EmailMessage()
+                msg['Subject'] = 'DSTURN-AI password reset'
+                msg['From'] = from_addr
+                msg['To'] = email
+                link = f"{request.url.scheme}://{request.client.host}:{PORT}/reset_password.html?token={token}"
+                msg.set_content(f"Reset your password using this link: {link}\nIf you didn't request this, ignore.")
+                s = smtplib.SMTP(smtp_host, smtp_port)
+                s.starttls()
+                if smtp_user and smtp_pass:
+                    s.login(smtp_user, smtp_pass)
+                s.send_message(msg)
+                s.quit()
+                return JSONResponse({'ok': True})
+            except Exception:
+                pass
+        # fallback: return token in response (developer mode)
+        return JSONResponse({'ok': True, 'token': token})
+
+
+    @app.post('/api/reset_password')
+    async def api_reset_password(request: Request):
+        data = await request.json()
+        token = data.get('token')
+        new_password = data.get('password')
+        if not token or not new_password:
+            raise HTTPException(status_code=400, detail='token and password required')
+        rec = get_token_record(USER_DATA_DIR, token)
+        if not rec or rec['type'] != 'reset' or rec['consumed'] or int(time.time()) > rec['expires_at']:
+            raise HTTPException(status_code=400, detail='invalid or expired token')
+        set_password_by_userid(USER_DATA_DIR, rec['user_id'], new_password)
+        consume_token(USER_DATA_DIR, token)
+        return JSONResponse({'ok': True})
+
+
+    @app.post('/api/request_verify')
+    async def api_request_verify(request: Request):
+        data = await request.json()
+        email = (data.get('email') or '').strip().lower()
+        if not email:
+            raise HTTPException(status_code=400, detail='email required')
+        user = get_user_by_email(USER_DATA_DIR, email)
+        if not user:
+            return JSONResponse({'ok': True})
+        token = create_token(USER_DATA_DIR, user['id'], 'verify', ttl_seconds=86400)
+        smtp_host = os.environ.get('SMTP_HOST')
+        if smtp_host:
+            try:
+                import smtplib
+                from email.message import EmailMessage
+                smtp_port = int(os.environ.get('SMTP_PORT', 587))
+                smtp_user = os.environ.get('SMTP_USER')
+                smtp_pass = os.environ.get('SMTP_PASS')
+                from_addr = os.environ.get('FROM_ADDRESS', smtp_user)
+                msg = EmailMessage()
+                msg['Subject'] = 'DSTURN-AI email verification'
+                msg['From'] = from_addr
+                msg['To'] = email
+                link = f"{request.url.scheme}://{request.client.host}:{PORT}/verify_email?token={token}"
+                msg.set_content(f"Verify your email using this link: {link}\n")
+                s = smtplib.SMTP(smtp_host, smtp_port)
+                s.starttls()
+                if smtp_user and smtp_pass:
+                    s.login(smtp_user, smtp_pass)
+                s.send_message(msg)
+                s.quit()
+                return JSONResponse({'ok': True})
+            except Exception:
+                pass
+        return JSONResponse({'ok': True, 'token': token})
+
+
+    @app.get('/api/verify_email')
+    async def api_verify_email(token: str = None):
+        if not token:
+            raise HTTPException(status_code=400, detail='token required')
+        rec = get_token_record(USER_DATA_DIR, token)
+        if not rec or rec['type'] != 'verify' or rec['consumed'] or int(time.time()) > rec['expires_at']:
+            raise HTTPException(status_code=400, detail='invalid or expired token')
+        set_user_verified(USER_DATA_DIR, rec['user_id'])
+        consume_token(USER_DATA_DIR, token)
+        return JSONResponse({'ok': True})
+
 
 # -----------------------------
 # Paddle webhook & premium storage

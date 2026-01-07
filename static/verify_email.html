@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Verify email — DSTURN-AI</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>body{font-family:Arial,Helvetica,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0} .card{width:360px;padding:20px;border:1px solid #ddd;border-radius:8px;text-align:center} button{padding:8px 12px}</style>
+</head>
+<body>
+  <div class="card">
+    <h2>Verify Email</h2>
+    <input id="token" placeholder="token">
+    <button id="submit">Verify</button>
+    <div id="msg" style="color:green;margin-top:12px"></div>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    if(params.get('token')) document.getElementById('token').value = params.get('token');
+    document.getElementById('submit').addEventListener('click', async ()=>{
+      const token = document.getElementById('token').value;
+      try{
+        const r = await fetch(`/api/verify_email?token=${encodeURIComponent(token)}`);
+        if(r.ok){ document.getElementById('msg').textContent = 'Email verified'; setTimeout(()=>location.href='/chat.html',800) }
+        else { const j = await r.json(); document.getElementById('msg').style.color='red'; document.getElementById('msg').textContent = j.detail || j.error }
+      }catch(e){ document.getElementById('msg').style.color='red'; document.getElementById('msg').textContent = e.message }
+    })
+  </script>
+</body>
+</html>

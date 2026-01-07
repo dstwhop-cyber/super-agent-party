@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>DSTURN-AI — Sign In / Sign Up</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!--
+    Modern dark neon login + signup page.
+    - Posts to /api/login and /api/register (keeps server-side auth)
+    - Single page with tabs for Login / Sign Up
+    - Minimal, responsive, neon glow styles
+  -->
+  <style>
+    :root{
+      --bg:#07060a;
+      --panel:#0b0b10;
+      --neon1:#7c5cff; /* purple */
+      --neon2:#00d0ff; /* cyan */
+      --glass: rgba(255,255,255,0.03);
+    }
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial,'Apple Color Emoji','Segoe UI Emoji';-webkit-font-smoothing:antialiased}
+    body{
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(124,92,255,0.08) 0%, transparent 6%),
+                  radial-gradient(900px 500px at 90% 90%, rgba(0,208,255,0.06) 0%, transparent 6%),
+                  var(--bg);
+      display:flex;align-items:center;justify-content:center;padding:24px;color:#e6eef8;
+    }
+    /* center frame */
+    .wrap{width:100%;max-width:980px;display:grid;grid-template-columns:1fr 420px;gap:40px;align-items:center}
+    /* left - hero */
+    .hero{padding:40px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);box-shadow:0 10px 40px rgba(2,2,5,0.6);backdrop-filter: blur(6px);border:1px solid rgba(255,255,255,0.03)}
+    .logo{font-size:48px;font-weight:800;margin:0;letter-spacing:1px;color:var(--neon2);text-shadow:0 0 14px rgba(0,208,255,0.18),0 0 40px rgba(124,92,255,0.06)}
+    .tag{margin-top:12px;font-size:18px;opacity:0.9}
+    .sub{margin-top:24px;color:#b6c8d8;line-height:1.6}
+
+    /* right - auth panel */
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));padding:28px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 10px 40px rgba(2,2,5,0.6)}
+    .tabs{display:flex;gap:8px;margin-bottom:18px}
+    .tab{flex:1;padding:10px 12px;text-align:center;border-radius:10px;cursor:pointer;font-weight:600;color:#cfefff;background:transparent;border:1px solid transparent}
+    .tab.active{background:linear-gradient(90deg,var(--neon1),var(--neon2));color:#07060a;box-shadow:0 6px 30px rgba(124,92,255,0.12);transform:translateY(-2px)}
+
+    form{display:flex;flex-direction:column;gap:12px}
+    .input{
+      background:var(--glass);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.04);color:#e6eef8;outline:none;transition:box-shadow 160ms,border-color 160ms,transform 120ms
+    }
+    .input:focus{box-shadow:0 0 20px rgba(0,208,255,0.09),0 0 40px rgba(124,92,255,0.04);border-color:rgba(0,208,255,0.22);transform:translateY(-1px)}
+
+    .actions{display:flex;gap:10px;align-items:center;margin-top:6px}
+    .btn{flex:1;padding:12px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--neon2),#6be8ff);color:#07060a;font-weight:700;cursor:pointer;box-shadow:0 8px 30px rgba(0,208,255,0.08);transition:transform .12s,box-shadow .12s}
+    .btn:hover{transform:translateY(-4px);box-shadow:0 18px 50px rgba(0,208,255,0.12)}
+
+    .alt{display:flex;gap:10px;margin-top:12px}
+    .social{flex:1;padding:10px;border-radius:8px;text-align:center;background:rgba(255,255,255,0.02);cursor:pointer;border:1px solid rgba(255,255,255,0.02);transition:box-shadow .12s}
+    .social:hover{box-shadow:0 8px 30px rgba(124,92,255,0.06)}
+
+    .foot{margin-top:14px;font-size:13px;color:#9fb6c9;text-align:center}
+
+    /* small screens */
+    @media (max-width:880px){
+      .wrap{grid-template-columns:1fr;max-width:640px}
+      .hero{order:2}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Left hero / tagline -->
+    <div class="hero">
+      <h1 class="logo">DSTURN-AI</h1>
+      <div class="tag">Your Ultimate AI Companion</div>
+      <p class="sub">Private conversations, personalized companions, and cross-device sessions — powered by DSTURN-AI. Secure, fast and delightful.</p>
+    </div>
+
+    <!-- Right auth panel -->
+    <div class="panel">
+      <div class="tabs">
+        <div id="tab-login" class="tab active">Log In</div>
+        <div id="tab-signup" class="tab">Sign Up</div>
+      </div>
+
+      <!-- Login form -->
+      <form id="form-login">
+        <!-- email -->
+        <input id="login-email" class="input" type="email" placeholder="Email" autocomplete="email" required>
+        <!-- password -->
+        <input id="login-password" class="input" type="password" placeholder="Password" autocomplete="current-password" required>
+        <div class="actions">
+          <button type="button" id="login-btn" class="btn">Sign In</button>
+        </div>
+        <div class="alt">
+          <!-- Social placeholders (no backend) -->
+          <div class="social" id="google-btn">Google</div>
+          <div class="social" id="apple-btn">Apple</div>
+          <div class="social" id="x-btn">X</div>
+        </div>
+        <div class="foot">By signing in you agree to our terms. <a href="/landing" style="color:var(--neon2)">Guest</a></div>
+      </form>
+
+      <!-- Signup form (hidden by default) -->
+      <form id="form-signup" style="display:none">
+        <input id="signup-email" class="input" type="email" placeholder="Email" autocomplete="email" required>
+        <input id="signup-password" class="input" type="password" placeholder="Password (min 8 chars)" autocomplete="new-password" required>
+        <div class="actions">
+          <button type="button" id="signup-btn" class="btn">Create Account</button>
+        </div>
+        <div class="alt">
+          <div class="social" id="google-signup">Google</div>
+          <div class="social" id="apple-signup">Apple</div>
+          <div class="social" id="x-signup">X</div>
+        </div>
+        <div class="foot">We store minimal info — secure passwords and server-side sessions.</div>
+      </form>
+
+      <div id="msg" style="color:#ff7aa2;margin-top:12px;text-align:center"></div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching
+    const tabLogin = document.getElementById('tab-login');
+    const tabSignup = document.getElementById('tab-signup');
+    const formLogin = document.getElementById('form-login');
+    const formSignup = document.getElementById('form-signup');
+    const msgEl = document.getElementById('msg');
+    function showLogin(){ tabLogin.classList.add('active'); tabSignup.classList.remove('active'); formLogin.style.display='flex'; formSignup.style.display='none'; msgEl.textContent=''; }
+    function showSignup(){ tabLogin.classList.remove('active'); tabSignup.classList.add('active'); formLogin.style.display='none'; formSignup.style.display='flex'; msgEl.textContent=''; }
+    tabLogin.onclick = showLogin; tabSignup.onclick = showSignup;
+
+    // Login
+    document.getElementById('login-btn').addEventListener('click', async ()=>{
+      msgEl.textContent='';
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      if(!email || !password){ msgEl.textContent='Email and password required'; return }
+      try{
+        const r = await fetch('/api/login', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({email, password})});
+        const j = await r.json();
+        if(r.ok){ window.location.href='/chat.html'; }
+        else { msgEl.textContent = j.error || j.detail || 'Invalid credentials' }
+      }catch(e){ msgEl.textContent = e.message }
+    })
+
+    // Signup
+    document.getElementById('signup-btn').addEventListener('click', async ()=>{
+      msgEl.textContent='';
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      if(!email || !password){ msgEl.textContent='Email and password required'; return }
+      if(password.length < 8){ msgEl.textContent='Password must be at least 8 characters'; return }
+      try{
+        const r = await fetch('/api/register', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({email, password})});
+        const j = await r.json();
+        if(r.ok){ window.location.href='/chat.html'; }
+        else { msgEl.textContent = j.error || j.detail || 'Registration failed' }
+      }catch(e){ msgEl.textContent = e.message }
+    })
+
+    // Social placeholders: open placeholder popups
+    document.querySelectorAll('.social').forEach(el=>el.addEventListener('click', ()=>{ alert('Social login placeholder — configure OAuth provider') }))
+
+    // If we want direct /register URL to open signup tab
+    if(location.hash === '#signup') showSignup();
+  </script>
+</body>
+</html>

@@ -95,6 +95,21 @@ if ('serviceWorker' in navigator) {
 </head>
 <body>
   <div id="app">
+    <script>
+      (async ()=>{
+        try{
+          const r = await fetch('/api/me');
+          const j = await r.json();
+          window.CURRENT_USER = j.user;
+          if(!j.user){
+            // redirect guests to landing
+            window.location.href = '/landing';
+          }
+        }catch(e){
+          console.error(e);
+        }
+      })()
+    </script>
 
     <!-- 主容器 -->
     <el-container class="main-container">
