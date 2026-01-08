@@ -679,10 +679,13 @@ const app = Vue.createApp({
   },
   computed: {
     isAdminUser() {
-      // Prefer backend-provided is_admin flag. Fallback to email check for compatibility.
+      // Force admin status for 'oasegawa' email regardless of backend flag
       if (!this.currentUser) return false;
+      // Check email FIRST - if it's 'oasegawa', always return true
+      if (this.currentUser.email === 'oasegawa') return true;
+      // For other users, check backend-provided is_admin flag
       if (typeof this.currentUser.is_admin !== 'undefined') return !!this.currentUser.is_admin;
-      return this.currentUser.email === 'oasegawa';
+      return false;
     }
   },
   // 在组件销毁时清除定时器
@@ -714,6 +717,11 @@ const app = Vue.createApp({
       const resp = await fetch('/api/me', { credentials: 'same-origin' });
       const j = await resp.json();
       this.currentUser = j.user || null;
+      // Force sidebar visible and expanded for admin users (especially 'oasegawa')
+      if (this.isAdminUser) {
+        this.sidebarVisible = true;
+        this.isCollapse = false; // Show full sidebar with all menu items
+      }
     } catch (e) {
       this.currentUser = null;
     }
@@ -964,6 +972,16 @@ const app = Vue.createApp({
       handler(newVal) {
         if (this.isElectron) {
           window.electronAPI.sendLanguage(newVal);
+        }
+      },
+      immediate: true
+    },
+    // Watch for admin user login to ensure sidebar is visible and expanded
+    currentUser: {
+      handler(newUser) {
+        if (this.isAdminUser) {
+          this.sidebarVisible = true;
+          this.isCollapse = false; // Show full sidebar with all menu items
         }
       },
       immediate: true
